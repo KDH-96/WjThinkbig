@@ -1,0 +1,162 @@
+<!--
+  @description       : 
+  @author            : dohun.kim@woongjin.co.kr
+  @group             : 
+  @last modified on  : 02-27-2024
+  @last modified by  : dohun.kim@woongjin.co.kr
+-->
+<aura:component controller="SendSMSController"
+    implements="force:lightningQuickActionWithoutHeader,flexipage:availableForAllPageTypes,force:hasRecordId"
+    access="global">
+
+    <aura:handler name="init" value="{!this}" action="{!c.getSMSTemplate}" />
+
+
+    <aura:attribute name="smsTemplates" type="SMS_Message_Template__c" />
+    <aura:attribute name="leads" type="Lead" />
+    <aura:attribute name="receiveMobilePhoneNameList" type="List" />
+    <aura:attribute name="buttonsDisabled" type="Boolean" default="false" />
+    <aura:attribute name="selectedMessageTitle" type="String" />
+    <aura:attribute name="selectedMessage" type="String" />
+    <aura:attribute name="selectedMessageLength" type="Integer" />
+    <aura:attribute name="selectedMessageTitleLength" type="Integer" />
+    <aura:attribute name="trimmedMessageLength" type="Integer" />
+    <aura:attribute name="trimmedTitleLength" type="Integer" />
+    <aura:attribute name="sendMobilePhone" type="String" />
+    <aura:attribute name="receiveMobilePhone" type="String" />
+    <aura:attribute name="selectedTemplateId" type="String" />
+    <aura:attribute name="isConfirmChecked" type="Boolean" default="false" />
+    <aura:attribute name="checkNOKNumber" type="Boolean" default="false" />
+
+    <aura:html tag="style">
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        overflow-y:hidden !important;
+        height:unset !important;
+        max-height:unset !important;
+        }
+        textarea { 
+        resize: none; !important;
+        }
+    </aura:html>
+
+    <header class="slds-modal__header">
+        <h1 class="slds-text-heading--medium">SMS 전송</h1>
+    </header>
+    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1" style="position:relative">
+        <lightning:spinner aura:id="mySpinner" variant="brand" alternativeText="Processing.." title="Processing.."
+            size="large" class="slds-hide" />
+        <lightning:card>
+            <table>
+                <tr>
+                    <td>
+                        <lightning:layout>
+                            <lightning:layoutItem size="2">
+                                <p style="line-height: 60px; font-weight:bold;">발신번호</p>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="4">
+                                <lightning:input value="{!v.sendMobilePhone}" disabled="true" />
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <lightning:layout>
+                            <lightning:layoutItem size="2">
+                                <p style="line-height: 60px; font-weight:bold;">수신번호</p>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="4">
+                                <lightning:select class="slds-size_full" aura:id="receiveMobile"
+                                    onchange="{!c.receiveMobileChange}">
+                                    <aura:iteration items="{!v.leads}" var="l">
+                                        <option text="{!'휴대폰번호('+l.LastName+')'}" value="{!'LastName_' + l.Id}" />
+                                        <aura:if isTrue="{!v.checkNOKNumber}">
+                                            <option text="관리요청번호" value="{!'NOKNumber_' + l.Id}" />
+                                        </aura:if>
+                                    </aura:iteration>
+                                </lightning:select>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="4">
+                    <td style="padding-left: 3%;">
+                        <lightning:input value="{!v.receiveMobilePhone}" disabled="true" />
+                    </td>
+                    </lightning:layoutItem>
+                    </lightning:layout>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <lightning:layout>
+                            <lightning:layoutItem size="2">
+                                <p style="line-height: 60px; font-weight:bold">템플릿 선택</p>
+                            </lightning:layoutItem>
+                            <lightning:layoutItem size="8">
+                                <lightning:select class="slds-size_full" aura:id="select1"
+                                    onchange="{!c.onMessageTemplateChange}">
+                                    <option text="문자템플릿 선택" value="none" />
+                                    <aura:iteration items="{!v.smsTemplates}" var="template">
+                                        <option text="{!template.Id}" label="{!template.Name}" value="{!template.Id}" />
+                                    </aura:iteration>
+<!--                                     <option text="직접입력" value="직접입력" /> -->
+                                </lightning:select>
+                            </lightning:layoutItem>
+                        </lightning:layout>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p style="font-weight:bold;">제목</p>
+                    </td>
+                    <td style="float:right; padding-left:5%;">
+                        <p>{!v.selectedMessageTitleLength}/100</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <lightning:input value="{!v.selectedMessageTitle}" maxlength="100"
+                            onchange="{!c.messageTitleChange}"
+                            disabled="{!v.selectedTemplateId =='none' ? true : false }" />
+                    </td>
+                </tr>
+                <br/>
+                <tr>
+                    <td>
+                        <p style="font-weight:bold;">내용</p>
+                    </td>
+                    <td style="float:right; padding-left: 5%;">
+                        <p>{!v.selectedMessageLength}/1000</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <lightning:textarea class="textAreaClass" aura:id="message" maxlength="1000"
+                            value="{!v.selectedMessage}" onchange="{!c.messageChange}"
+                            disabled="{!v.selectedTemplateId =='none' ? true : false }" />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="color:red;">
+                        <span>본 기능은 소통용 메시지만 전송할 수 있습니다. 홍보성 문자 전송 시 계약이 즉시</span>
+                        <span> 해지될 수 있습니다. 전송된 내용은 별도로 저장되어 관리됩니다.</span>
+                    </td>
+                </tr>
+                <br />
+                <tr>
+                    <td colspan="4">
+                        <lightning:input type="checkbox" class="confirm" label="위 내용을 인지하고 확인했습니다."
+                            aura:id="checkConfirm" onchange="{!c.confirmChecked}" />
+                    </td>
+                </tr>
+            </table>
+        </lightning:card>
+
+    </div>
+    <footer class="slds-modal__footer">
+        <lightning:button variant="brand" label="취소" title="Cancel" onclick="{! c.closeModal }" />
+        <lightning:button variant="brand" label="전송" title="Send" aura:id="Send" onclick="{! c.Send }"
+            disabled="{!v.trimmedMessageLength == 0 || v.trimmedTitleLength == 0 || v.isConfirmChecked ==false || v.receiveMobilePhone =='' || v.receiveMobilePhone ==undefined || v.sendMobilePhone =='' || v.sendMobilePhone ==undefined ? true : v.buttonsDisabled }" />
+    </footer>
+</aura:component>

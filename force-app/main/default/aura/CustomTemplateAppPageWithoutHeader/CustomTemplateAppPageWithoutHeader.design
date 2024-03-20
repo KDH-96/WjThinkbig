@@ -1,0 +1,5 @@
+<design:component label="Custom App Page without header">
+    <flexipage:template >
+        <flexipage:region name="main" label="Main Region" defaultWidth="LARGE" />
+    </flexipage:template>
+</design:component>

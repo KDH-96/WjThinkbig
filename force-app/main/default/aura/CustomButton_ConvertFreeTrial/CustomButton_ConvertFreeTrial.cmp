@@ -1,0 +1,41 @@
+<!--
+  @description       : 예비회원 > 무료체험전환 Quick Action
+  @author            : ms.kim
+  @group             : 
+  @last modified on  : 02-06-2024
+  @last modified by  : ms.kim
+-->
+<aura:component controller="CustomButtonController" implements="force:lightningQuickActionWithoutHeader,flexipage:availableForAllPageTypes,force:hasRecordId">
+    <aura:attribute name="buttonsDisabled" type="Boolean" default="false"/>
+    
+    <aura:html tag="style">
+        .cuf-content {
+            padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+            padding: 0rem !important;
+        }   
+        .slds-p-around--mediumb {
+            padding: 1rem !important;
+        }    
+        .slds-modal__content{
+            overflow-y:hidden !important;
+            height:unset !important;
+            max-height:unset !important;
+        }
+    </aura:html>
+
+    <header class="slds-modal__header">
+        <h1 class="slds-text-heading--medium">무료체험전환</h1>
+    </header>
+    <div style="position:relative" >
+        <lightning:spinner aura:id="mySpinner" variant="brand" alternativeText="Processing.." title="Processing.." size="large" class="slds-hide"/>
+        <div class="slds-modal__content slds-p-around--mediumb slds-align_absolute-center slds-size_1-of-1 slds-is-relative slds-text-heading_small">
+            실행하시겠습니까?
+        </div>
+    </div>
+    <div class="modal-footer slds-modal__footer slds-size_1-of-1">
+        <lightning:button label="취소" onclick="{!c.onClose}" class="btn-bottom" disabled="{!v.buttonsDisabled}"/>
+        <lightning:button label="실행" variant="brand" onclick="{!c.doAction}" class="btn-bottom" disabled="{!v.buttonsDisabled}"/>
+    </div>
+</aura:component>

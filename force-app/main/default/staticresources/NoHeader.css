@@ -1,0 +1,10 @@
+.flexipageHeader {
+    display: none;
+}
+
+.slds-template_default {
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}

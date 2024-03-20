@@ -1,0 +1,12 @@
+<!-- /**************************************************************************************************
+ * UtilitybarCmp.cmp                                        
+ *                                                                                                
+ * Ver     Date           Author       Modification                                      
+ * ============================================================================================== 
+ * 1.0     2024-01-09    minsekim      Utility bar 통합 cmp         
+***************************************************************************************************/ -->
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+    <lightning:utilityBarAPI aura:id="utilitybar" />
+    <aura:handler name="init" value="{!this}" action="{! c.setUtilityIcon }"/>
+    
+</aura:component>

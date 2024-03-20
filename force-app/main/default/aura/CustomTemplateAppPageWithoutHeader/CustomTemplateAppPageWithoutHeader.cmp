@@ -1,0 +1,16 @@
+<!--
+  @description       : 
+  @author            : ms.kim
+  @group             : 
+  @last modified on  : 02-13-2024
+  @last modified by  : ms.kim
+-->
+<aura:component implements="lightning:appHomeTemplate" description="Lightning Experience app page template with one section but without standard header">
+    <aura:attribute name="main" type="Aura.Component[]" />
+ <ltng:require styles="{!$Resource.NoHeader}"/>
+    
+    <div>
+        {!v.main}
+    </div>
+    
+</aura:component>

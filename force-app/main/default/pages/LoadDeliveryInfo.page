@@ -1,0 +1,56 @@
+<apex:page StandardController="DeliveryInfo__c" extensions="loadDeliveryInfos" lightningStylesheets="true">
+    <apex:slds />
+    <div class="slds-spinner_container">
+        <div role="status" class="slds-spinner slds-spinner_large slds-spinner_brand">
+            <div class="slds-spinner__dot-a"></div>
+            <div class="slds-spinner__dot-b"></div>
+        </div>
+    </div>
+    <input id="deliv_num" type="text" style="display:none;" value="{!DeliveryInfo__c.DeliveryNumber__c}"/>
+    <input id="deliv_id" type="text" style="display:none;" value="{!DeliveryInfo__c.Id}"/>
+    <input id="deliv_category" type="text" style="display:none;" value="{!DeliveryInfo__c.Category__c}"/>
+    <input id="deliv_opp" type="text" style="display:none;" value="{!DeliveryInfo__c.OpportunityId__c}"/>
+    
+    <script type='text/javascript' src='/canvas/sdk/js/publisher.js'></script>
+    <script type="text/javascript">
+    //    var delivInfo = null;	
+        window.onload = function(){
+        	var deliv_number = document.getElementById('deliv_num').value;
+            var deliv_id = document.getElementById('deliv_id').value;
+        	var deliv_category = document.getElementById('deliv_category').value;
+        	var deliv_opp = document.getElementById('deliv_opp').value;
+        	console.log(deliv_id);
+        	console.log(deliv_category);
+            console.log(deliv_number);
+            var url = 'https://www.hanjin.com/kor/CMS/DeliveryMgr/WaybillResult.do?mCode=MN038&schLang=KR&wblnumText2=';
+            var url2 = url + deliv_number;
+
+            if((deliv_category == '패드 발송') || (deliv_category == '패드 회수')){
+                Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.loadDeliveryInfos.loadDelivInfos}',
+                    deliv_id,
+                    function(result, event){
+                        if(event.status){
+                            console.log('success');
+                            window.open(url2, '_self');
+                            window.opener.location.reload();
+                            //window.close();
+                        }else if(event.type === 'exception'){
+                            console.log('error');
+                        }else{
+                            console.log(event.message);
+                        }
+                    },
+                    {escape:true}
+                );
+                
+            }else{
+                window.open(url2,'_self');
+            }
+
+        }
+    </script>
+    <style>
+        
+    </style>
+</apex:page>
